@@ -18,7 +18,7 @@ export default function EmployeeInfoPage() {
     <YStack f={1} ai="center" jc="center" bg="$background" p="$4">
       <Card
         w="100%"
-        maxW={500}
+        maw={500}
         p="$8"
         bordered
         elevation="$4"
