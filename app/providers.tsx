@@ -12,7 +12,7 @@ const SettingsSync = () => {
   useEffect(() => {
     const syncSettings = async () => {
       try {
-        const res = await apiFetch(`/auth/me`);
+        const res = await apiFetch(`/auth/me`, { credentials: 'include' });
         if (res.ok) {
           const user = await res.json();
 
