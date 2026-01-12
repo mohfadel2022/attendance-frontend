@@ -1,22 +1,50 @@
 'use client'
 
-import '@tamagui/core/reset.css'
-import '@tamagui/polyfill-dev'
+import React, { useEffect } from 'react'
+import { I18nProvider, useI18n } from './i18n'
+import { ThemeProvider, useTheme } from 'next-themes'
+import { apiFetch } from '@/lib/api'
 
-import { NextThemeProvider } from '@tamagui/next-theme'
-import { TamaguiProvider } from 'tamagui'
-import config from '../tamagui.config'
-import React from 'react'
-import { I18nProvider } from './i18n'
+const SettingsSync = () => {
+  const { lang, setLang } = useI18n()
+  const { theme, setTheme } = useTheme()
 
-export const NextTamaguiProvider = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    const syncSettings = async () => {
+      try {
+        const res = await apiFetch(`/auth/me`);
+        if (res.ok) {
+          const user = await res.json();
+
+          if (user.language && user.language !== lang) {
+            setLang(user.language);
+          }
+
+          if (user.theme && user.theme !== theme) {
+            setTheme(user.theme);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to sync settings:", error);
+      }
+    };
+
+    syncSettings();
+  }, []); // Run once on mount
+
+  return null; // Render nothing
+}
+
+export const AppProvider = ({ children, initialLang }: { children: React.ReactNode, initialLang?: 'es' | 'ar' }) => {
+
   return (
-    <I18nProvider>
-      <NextThemeProvider skipNextHead>
-        <TamaguiProvider config={config} defaultTheme="light">
+    <I18nProvider initialLang={initialLang}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <SettingsSync />
+        <main className="flex-1 p-4">
           {children}
-        </TamaguiProvider>
-      </NextThemeProvider>
+        </main>
+      </ThemeProvider>
     </I18nProvider>
   )
 }

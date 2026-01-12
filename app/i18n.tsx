@@ -8,7 +8,8 @@ interface I18nContextType {
   lang: Language
   setLang: (lang: Language) => void
   t: (key: string) => string
-  isRTL: boolean
+  isRTL: boolean,
+  locale: string,
 }
 
 const translations = {
@@ -20,7 +21,7 @@ const translations = {
     office_qr: 'QR de Oficina',
     settings: 'Ajustes',
     logout: 'Cerrar Sesión',
-    welcome: 'Bienvenido de nuevo, Administrador',
+    welcome: 'Bienvenido de nuevo',
     add_employee: '+ Agregar Empleado',
     search_employees: 'Buscar empleados...',
     filter_logs: 'Filtrar registros...',
@@ -50,7 +51,7 @@ const translations = {
     date_time: 'Fecha/Hora',
     actions: 'Acciones',
     status: 'Estado',
-    office_checkin_title: 'Registro de Entrada/Salida en Oficina',
+    office_checkin_title: 'Registro de Entrada/Salida ',
     scan_to_check: 'Escanea para registrar entrada / salida',
     admin_profile: 'Perfil de Administrador',
     administrator: 'Administrador',
@@ -66,6 +67,93 @@ const translations = {
     admin_role: 'Administrador',
     save: 'Guardar',
     create: 'Crear',
+    // Employee Info Page
+    welcome_title: '¡Bienvenido!',
+    employee_mode: 'Modo Empleado',
+    important_info: 'Información Importante',
+    mobile_app_msg: 'Para registrar su entrada o salida, por favor utilice la aplicación móvil oficial.',
+    steps_start: 'Pasos para comenzar:',
+    step_download: 'Descargue la aplicación en su teléfono',
+    step_login: 'Inicie sesión con sus credenciales',
+    step_scan: 'Escanee el código QR de la oficina',
+    get_app: 'Obtener App Móvil',
+    no_records: 'No se encontraron registros',
+    no_results: 'No se encontraron resultados',
+    confirm_action_title: 'Confirmar Acción',
+    remember_me: 'Recordarme',
+    login_title: 'Iniciar Sesión',
+    login_btn: 'Iniciar Sesión',
+    login_welcome_msg: 'Bienvenido de nuevo',
+    login_welcome_desc: 'Acceda a su panel de control de asistencia',
+    login_subtitle: 'Por favor, introduzca sus credenciales',
+    forgot_password: '¿Olvidó su contraseña?',
+    current_password: 'Contraseña Actual',
+    new_password: 'Nueva Contraseña',
+    update_password: 'Actualizar Contraseña',
+    forgot_title: 'Recuperar Contraseña',
+    forgot_desc: 'Ingrese su correo para recibir instrucciones de recuperación.',
+    back_to_login: 'Volver al Inicio',
+    check_email: 'Revise su correo',
+    forgot_instruction: 'Hemos enviado un enlace de recuperación a',
+    reset_password_btn: 'Restablecer Contraseña',
+    office_settings: 'Ajustes de Oficina',
+    database_settings: 'Ajustes de Base de Datos',
+    office_settings_desc: 'Configure la ubicación para la verificación.',
+    location_details: 'Detalles de Ubicación',
+    use_current_location: 'Usar mi ubicación actual',
+    verification_radius: 'Radio de Verificación',
+    save_changes: 'Guardar Cambios',
+    settings_saved: 'Ajustes guardados correctamente',
+    sync_now: 'Sincronizar Ahora',
+    last_sync: 'Última sincronización',
+    error_missing_email: 'Por favor, introduce tu correo electrónico',
+    forgot_success: '¡Instrucciones de restablecimiento enviadas!',
+    forgot_password_title: '¿Olvidó su contraseña?',
+    try_another_email: 'Probar con otro correo',
+    passwords_not_match: 'Las contraseñas no coinciden',
+    reset_success: '¡Contraseña restablecida con éxito!',
+    done: '¡Hecho!',
+    reset_password_label: 'Restablecer Contraseña',
+    reset_done_desc: 'Su contraseña ha sido restablecida con éxito.',
+    redirect_login: 'Redirigiendo al inicio de sesión...',
+    secure_account: 'Proteja su cuenta',
+    reset_instruction_msg: 'Elija una contraseña segura para proteger su cuenta.',
+    location_details_desc: 'Establezca las coordenadas exactas de su lugar de trabajo.',
+    office_name: 'Nombre de la Oficina',
+    latitude: 'Latitud',
+    longitude: 'Longitud',
+    radius_desc: 'Defina la distancia permitida (en metros) para el registro.',
+    radius_meters: 'Radio (metros)',
+    min_radius: 'Mínimo',
+    max_radius: 'Máximo',
+    office_settings_tip: 'Consejo: Aumentar el radio puede ayudar si las señales GPS son débiles dentro del edificio.',
+    db_settings_desc: 'Gestione las conexiones locales/remotas y la sincronización de datos.',
+    connection_mode: 'Modo de Conexión',
+    db_mode_desc: 'Elija dónde se almacenan sus datos principales.',
+    local: 'Local',
+    remote: 'Remoto',
+    remote_db_url: 'URL de la Base de Datos Remota',
+    save_db_config: 'Guardar Configuración',
+    local_db_config: 'Configuración Local',
+    remote_db_config: 'Configuración Remota',
+    synchronization: 'Sincronización',
+    pull_remote: 'Traer desde Remoto',
+    sync_desc: 'Sincronice los registros locales con la base de datos remota.',
+    never: 'Nunca',
+    sync_warning: 'Nota Crítica',
+    sync_warning_text: 'Asegúrese de que la base de datos remota tenga el mismo esquema que la local. Esta acción no se puede deshacer.',
+    officeQr: 'QR de Oficina',
+    confirm_password: 'Confirmar Contraseña',
+    unsaved_changes: 'Cambios sin guardar',
+    no_results_found: 'No se encontraron resultados',
+    show: 'Mostrar',
+    page: 'Página',
+    of: 'de',
+    search_placeholder: 'Buscar...',
+    application: 'Aplicación',
+    system: 'Sistema',
+    loading: 'Cargando...',
+    
   },
   ar: {
     dashboard: 'لوحة التحكم',
@@ -75,7 +163,7 @@ const translations = {
     office_qr: 'رمز المكتب',
     settings: 'الإعدادات',
     logout: 'تسجيل الخروج',
-    welcome: 'مرحباً بك، المدير',
+    welcome: 'مرحباً بك',
     add_employee: '+ إضافة موظف',
     search_employees: 'بحث عن موظفين...',
     filter_logs: 'تصفية السجلات...',
@@ -121,24 +209,120 @@ const translations = {
     admin_role: 'مدير',
     save: 'حفظ',
     create: 'إنشاء',
+    // Employee Info Page
+    welcome_title: 'مرحباً بك!',
+    employee_mode: 'وضع الموظف',
+    important_info: 'معلومات هامة',
+    mobile_app_msg: 'لتسجيل الدخول أو الخروج من المكتب، يرجى استخدام تطبيق الهاتف المحمول الرسمي.',
+    steps_start: 'خطوات البدء:',
+    step_download: 'قم بتنزيل التطبيق على هاتفك',
+    step_login: 'سجل الدخول باستخدام بياناتك الوظيفية',
+    step_scan: 'امسح رمز QR الخاص بالمكتب لتسجيل حضورك',
+    get_app: 'تحميل التطبيق',
+    no_records: 'لا توجد سجلات',
+    no_results: 'لا توجد نتائج',
+    confirm_action_title: 'تأكيد الإجراء',
+    remember_me: 'تذكرني',
+    login_title: 'تسجيل الدخول',
+    login_btn: 'دخول',
+    login_welcome_msg: 'مرحباً بك مجدداً',
+    login_welcome_desc: 'الوصول إلى لوحة التحكم الخاصة بك',
+    login_subtitle: 'يرجى إدخال بيانات الاعتماد الخاصة بك',
+    forgot_password: 'هل نسيت كلمة المرور؟',
+    current_password: 'كلمة المرور الحالية',
+    new_password: 'كلمة المرور الجديدة',
+    update_password: 'تحديث كلمة المرور',
+    forgot_title: 'استعادة كلمة المرور',
+    forgot_desc: 'أدخل بريدك الإلكتروني لتلقي تعليمات الاستعادة.',
+    back_to_login: 'العودة لتسجيل الدخول',
+    check_email: 'تحقق من بريدك الإلكتروني',
+    forgot_instruction: 'لقد أرسلنا رابط الاستعادة إلى',
+    reset_password_btn: 'إعادة تعيين كلمة المرور',
+    office_settings: 'إعدادات المكتب',
+    database_settings: 'إعدادات قاعدة البيانات',
+    office_settings_desc: 'تكوين الموقع للتحقق من الحضور.',
+    location_details: 'تفاصيل الموقع',
+    use_current_location: 'استخدام موقعي الحالي',
+    verification_radius: 'نطاق التحقق',
+    save_changes: 'حفظ التغييرات',
+    settings_saved: 'تم حفظ الإعدادات بنجاح',
+    sync_now: 'مزامنة الآن',
+    last_sync: 'آخر مزامنة',
+    error_missing_email: 'يرجى إدخال بريدك الإلكتروني',
+    forgot_success: 'تم إرسال تعليمات إعادة التعيين!',
+    forgot_password_title: 'هل نسيت كلمة المرور؟',
+    try_another_email: 'جرب بريداً آخر',
+    passwords_not_match: 'كلمات المرور غير متطابقة',
+    reset_success: 'تم إعادة تعيين كلمة المرور بنجاح!',
+    done: 'تم!',
+    reset_password_label: 'إعادة تعيين كلمة المرور',
+    reset_done_desc: 'تمت إعادة تعيين كلمة المرور الخاصة بك بنجاح.',
+    redirect_login: 'جاري التحويل إلى صفحة الدخول...',
+    secure_account: 'أمن حسابك',
+    reset_instruction_msg: 'اختر كلمة مرور قوية لحماية حسابك ومعلوماتك الشخصية.',
+    location_details_desc: 'حدد الإحداثيات الدقيقة لمكان عملك.',
+    office_name: 'اسم المكتب',
+    latitude: 'خط العرض',
+    longitude: 'خط الطول',
+    radius_desc: 'حدد المسافة المسموح بها (بالأمتار) لتسجيل الحضور.',
+    radius_meters: 'النطاق (أمتار)',
+    min_radius: 'الحد الأدنى',
+    max_radius: 'الحد الأقصى',
+    office_settings_tip: 'نصيحة: زيادة النطاق قد يساعد إذا كانت إشارات GPS ضعيفة داخل المبنى.',
+    db_settings_desc: 'إدارة الاتصالات المحلية/البعيدة ومزامنة البيانات.',
+    connection_mode: 'وضع الاتصال',
+    db_mode_desc: 'اختر أين يتم تخزين بياناتك الأساسية.',
+    local: 'محلي',
+    remote: 'عن بعد',
+    remote_db_url: 'رابط قاعدة البيانات البعيدة',
+    save_db_config: 'حفظ الإعدادات',
+    local_db_config: 'الإعدادات المحلية',
+    remote_db_config: 'الإعدادات البعيدة',
+    synchronization: 'المزامنة',
+    pull_remote: 'سحب من البعيد',
+    sync_desc: 'مزامنة السجلات المحلية مع قاعدة البيانات البعيدة.',
+    never: 'أبداً',
+    sync_warning: 'ملاحظة هامة',
+    sync_warning_text: 'تأكد من أن قاعدة البيانات البعيدة لديها نفس المخطط (Schema) كالمحلية. لا يمكن التراجع عن هذا الإجراء.',
+    officeQr: 'رمز المكتب',
+    confirm_password: 'تأكيد كلمة المرور',
+    unsaved_changes: 'تغييرات غير محفوظة',
+    no_results_found: 'لم يتم العثور على نتائج',
+    show: 'عرض',
+    page: 'صفحة',
+    of: 'من',
+    search_placeholder: 'بحث...',
+    application: 'التطبيق',
+    system: 'النظام',
+    loading: 'جاري التحميل...',
+    
   }
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined)
 
-export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
-  const [lang, setLang] = useState<Language>('es')
+export const I18nProvider = ({ children, initialLang }: { children: React.ReactNode, initialLang?: Language }) => {
+  const [lang, setLang] = useState<Language>(initialLang || 'es')
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('lang') as Language
-    if (savedLang && (savedLang === 'es' || savedLang === 'ar')) {
-      setLang(savedLang)
+    // Only on client mount
+    const saved = localStorage.getItem('lang') as Language
+    if (saved && (saved === 'es' || saved === 'ar') && saved !== initialLang) {
+      setLang(saved)
     }
-  }, [])
+  }, [initialLang])
+
+  useEffect(() => {
+    // Update document attributes if they haven't been set by blocking script or if lang changes
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
+    document.documentElement.lang = lang
+  }, [lang])
 
   const handleSetLang = (newLang: Language) => {
     setLang(newLang)
     localStorage.setItem('lang', newLang)
+    // Set cookie for SSR
+    document.cookie = `lang=${newLang}; path=/; max-age=31536000` // 1 year
     document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr'
     document.documentElement.lang = newLang
   }
@@ -153,7 +337,7 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <I18nContext.Provider value={{ lang, setLang: handleSetLang, t, isRTL: lang === 'ar' }}>
+    <I18nContext.Provider value={{ lang, setLang: handleSetLang, t, isRTL: lang === 'ar', locale: lang === 'ar' ? 'ar' : 'es-ES' }}>
       {children}
     </I18nContext.Provider>
   )

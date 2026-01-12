@@ -1,102 +1,173 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { YStack, Input, Button, Text, H2, Form, Spinner, Card, AnimatePresence } from 'tamagui'
-import { LuCheck, LuX } from 'react-icons/lu'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from "sonner"
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
+
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { FormSkeleton } from '@/components/skeletons/form-skeleton'
+import { useI18n } from '@/app/i18n'
+import { useTheme } from 'next-themes'
 
 export default function LoginPage() {
 
   const API = process.env.NEXT_PUBLIC_BACKEND_URL
+  const { t, setLang } = useI18n()
+  const { setTheme } = useTheme()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null)
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
 
-  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
-    setToast({ message, type })
-    setTimeout(() => setToast(null), 3000)
-  }
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLogin = async () => {
-    
+
     setLoading(true)
     try {
-     
+
       const res = await fetch(`${API}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
+        credentials: 'include'
       })
       const data = await res.json()
       if (res.ok) {
-        localStorage.setItem('token', data.token)
+        // Token is now handled by HttpOnly cookie
+        // We still save user info for immediate UI feedback, but it's not "secret" like the token
         localStorage.setItem('user', JSON.stringify(data.user))
-        if (data.user.role === 'ADMIN') {
+
+        // Apply Settings
+        if (data.user.language) {
+          setLang(data.user.language)
+        }
+        if (data.user.theme) {
+          setTheme(data.user.theme)
+        }
+
+        if (data.user.role === 'ADMIN' || data.user.role === 'SUPERADMIN') {
           router.push('/admin')
         } else {
           router.push('/employee-info')
         }
       } else {
-        showToast(data.error || 'Login failed')
+        toast.error("Login failed", {
+          description: data.error || 'Login failed',
+        })
       }
     } catch (err) {
       console.error(err)
-      showToast('Connection error')
+      toast.error("Error", {
+        description: 'Connection error',
+      })
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <YStack f={1} ai="center" jc="center" bg="$background" minHeight="100vh" position="relative">
-      <AnimatePresence>
-        {toast && (
-          <YStack
-            key="toast"
-            position="absolute"
-            top={20}
-            bg={toast.type === 'success' ? '$green10' : '$red10'}
-            p="$3"
-            br="$4"
-            elevation="$4"
-            enterStyle={{ opacity: 0, y: -20 }}
-            exitStyle={{ opacity: 0, y: -20 }}
-            animation="quick"
-            zIndex={10000}
-            flexDirection="row"
-            ai="center"
-            gap="$2"
-          >
-            {toast.type === 'success' ? <LuCheck color="white" /> : <LuX color="white" />}
-            <Text color="white" fontWeight="BOLD">{toast.message}</Text>
-          </YStack>
-        )}
-      </AnimatePresence>
+    <div className="flex min-h-screen">
+      {/* Left Side: Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
+          style={{ backgroundImage: "url('/login_bg.png')" }}
+        />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-12 text-white">
+          <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">{t('login_welcome_msg') || 'Welcome Back'}</h1>
+          <p className="text-xl opacity-90 text-center max-w-md drop-shadow-md">
+            {t('login_welcome_desc') || 'Efficiently manage your workforce with our advanced attendance system.'}
+          </p>
+        </div>
+      </div>
 
-      <Card w={350} p="$4" bordered elevation="$4">
-        <YStack gap="$4">
-            <H2 ta="center">Login</H2>
-            <YStack gap="$3">
-                <Input 
-                    placeholder="Email" 
-                    value={email} 
-                    onChangeText={setEmail}
+      {/* Right Side: Form */}
+      <div className="flex flex-col flex-1 items-center justify-center bg-background relative p-8">
+        <Card className="w-full max-w-[400px] shadow-2xl border-none sm:border">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-center text-3xl font-bold tracking-tight">{t('login_title')}</CardTitle>
+            <p className="text-center text-muted-foreground">{t('login_subtitle') || 'Enter your credentials to access your account'}</p>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6 pt-4">
+            {!mounted ? (
+              <FormSkeleton />
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t("email")}</Label>
+                  <Input
+                    id="email"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     autoCapitalize="none"
-                />
-                <Input 
-                    placeholder="Password" 
-                    secureTextEntry 
-                    value={password} 
-                    onChangeText={setPassword} 
-                />
-                <Button theme="active" disabled={loading} onPress={handleLogin}>
-                    {loading ? <Spinner color="$color" /> : <Text>Login</Text>}
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">{t("password")}</Label>
+
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      placeholder={t("password")}
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  {/* <div className="flex gap-2 items-center">
+                    <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => setRememberMe(checked as boolean)} />
+                    <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {t("remember_me")}
+                    </Label>
+                  </div> */}
+                  <Button variant="link" className="px-0 font-normal h-auto text-xs" onClick={() => router.push('/forgot-password')}>
+                    {t('forgot_password') || 'Forgot password?'}
+                  </Button>
+                </div>
+                <Button className="w-full h-11 text-base font-semibold" disabled={loading} onClick={handleLogin}>
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('login_btn')}
                 </Button>
-            </YStack>
-        </YStack>
-      </Card>
-    </YStack>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          {new Date().getFullYear()} &copy; Attendance System. All rights reserved.
+        </p>
+      </div>
+    </div>
   )
 }
