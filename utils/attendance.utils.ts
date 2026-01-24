@@ -1,7 +1,10 @@
 // utils/attendance.utils.ts
 import { Attendance } from "@/lib/types";
+import { useI18n } from "@/app/i18n";
+import { formatTimeDiff } from "@/lib/format-time-diff";
 
-export const getDailyRecords = (attendance: Attendance[]) => {
+
+export const getDailyRecords = (attendance: Attendance[], t: (key: string) => string) => {
   const dailyRecords: any[] = [];
   const userMap = new Map<number, any>();
 
@@ -31,10 +34,11 @@ export const getDailyRecords = (attendance: Attendance[]) => {
 
       let timeDiff = "-";
       if (firstIn && lastOut) {
-        const diff = +new Date(lastOut.timestamp) - +new Date(firstIn.timestamp);
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        timeDiff = `${h}h ${m}m`;
+        // const diff = +new Date(lastOut.timestamp) - +new Date(firstIn.timestamp);
+        // const h = Math.floor(diff / 3600000);
+        // const m = Math.floor((diff % 3600000) / 60000);
+        // timeDiff = `${h}h ${m}m`;
+        timeDiff = formatTimeDiff(firstIn.timestamp, lastOut.timestamp, t);
       }
 
       dailyRecords.push({

@@ -22,7 +22,8 @@ export const ReportsColumns = (
     {
       header: t("total"),
       accessorKey: "timeDiff",
-      cell: ({ row }: { row: { original: DailyRecord } }) => <strong>{row.original.timeDiff}</strong>,
+      cell: ({ row }: { row: { original: DailyRecord } }) =>
+         <strong className={row.original.timeDiff.includes("-") ? "text-red-500" : "text-green-500"}>{row.original.timeDiff}</strong>,
     },
     {
       header: t("actions"),

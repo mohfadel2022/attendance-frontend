@@ -12,17 +12,18 @@ import { Label } from "@/components/ui/label"
 import { FormSkeleton } from '@/components/skeletons/form-skeleton'
 import { useI18n } from '@/app/i18n'
 import { useTheme } from 'next-themes'
+import Image from 'next/image'
 
 export default function LoginPage() {
 
   const API = process.env.NEXT_PUBLIC_BACKEND_URL
-  const { t, setLang } = useI18n()
+  const { t, isRTL, setLang } = useI18n()
   const { setTheme } = useTheme()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(true)
+  const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
@@ -94,9 +95,19 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side: Form */}
-      <div className="flex flex-col flex-1 items-center justify-center bg-background relative p-8">
-        <Card className="w-full max-w-[400px] shadow-2xl border-none sm:border">
-          <CardHeader className="space-y-1">
+      <div className="flex flex-col flex-1 items-center justify-center bg-background p-8">
+          <div className="relative w-full max-w-[400px] flex justify-center mb-[-50px] z-10">
+            <Image
+              alt="logo"
+              src="/logo.svg"
+              width={100}
+              height={100}
+              className="rounded-full border-4 border-white"
+            />
+          </div>
+  <Card className="relative w-full max-w-[400px] shadow-2xl border-none sm:border overflow-hidden rounded-t-[2rem] pt-12">
+
+          <CardHeader className="space-y-1 relative mt-8" >
             <CardTitle className="text-center text-3xl font-bold tracking-tight">{t('login_title')}</CardTitle>
             <p className="text-center text-muted-foreground">{t('login_subtitle') || 'Enter your credentials to access your account'}</p>
           </CardHeader>
@@ -104,11 +115,12 @@ export default function LoginPage() {
             {!mounted ? (
               <FormSkeleton />
             ) : (
-              <div className="flex flex-col gap-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="flex flex-col gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">{t("email")}</Label>
                   <Input
                     id="email"
+                    name="email"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -124,17 +136,18 @@ export default function LoginPage() {
                   <div className="relative">
                     <Input
                       id="password"
+                      name="password"
                       placeholder={t("password")}
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pr-10"
+                      autoComplete="current-password"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className={`absolute top-0 h-full px-3 py-2 hover:bg-transparent ${isRTL ? 'left-0' : 'right-0'}`}
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -145,21 +158,21 @@ export default function LoginPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex justify-end">
-                  {/* <div className="flex gap-2 items-center">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
                     <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => setRememberMe(checked as boolean)} />
                     <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                       {t("remember_me")}
                     </Label>
-                  </div> */}
-                  <Button variant="link" className="px-0 font-normal h-auto text-xs" onClick={() => router.push('/forgot-password')}>
+                  </div>
+                  <Button type="button" variant="link" className="px-0 font-normal h-auto text-xs" onClick={() => router.push('/forgot-password')}>
                     {t('forgot_password') || 'Forgot password?'}
                   </Button>
                 </div>
-                <Button className="w-full h-11 text-base font-semibold" disabled={loading} onClick={handleLogin}>
+                <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
                   {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('login_btn')}
                 </Button>
-              </div>
+              </form>
             )}
           </CardContent>
         </Card>

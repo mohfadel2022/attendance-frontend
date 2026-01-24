@@ -4,8 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { FormSkeleton } from "../skeletons/form-skeleton"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useI18n } from "@/app/i18n"
 
 const AttendanceEditModal = ({ showAttendanceModal, setShowAttendanceModal, editForm, setEditForm, handleSaveAttendance, loading }: any) => {
+    const { t } = useI18n()
     return (
         <Dialog open={showAttendanceModal} onOpenChange={setShowAttendanceModal}>
             <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
@@ -18,8 +21,16 @@ const AttendanceEditModal = ({ showAttendanceModal, setShowAttendanceModal, edit
                     ) : (
                         <div className="grid gap-4">
                             <div className="grid gap-2">
-                                <Label>Type</Label>
-                                <Input value={editForm.type} onChange={(e) => setEditForm({ ...editForm, type: e.target.value })} placeholder="CHECK_IN / CHECK_OUT" />
+                                <Label>{t('type') || 'Type'}</Label>
+                                <Select value={editForm.type} onValueChange={(value) => setEditForm({ ...editForm, type: value })}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t('select_type') || 'Select type'} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="CHECK_IN">{t('checkin')}</SelectItem>
+                                        <SelectItem value="CHECK_OUT">{t('checkout')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="grid gap-2">
                                 <Label>Date</Label>

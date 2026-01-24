@@ -38,7 +38,8 @@ export default function DatabaseSettingsPage() {
     const [checkStatus, setCheckStatus] = useState<'idle' | 'checking' | 'connected' | 'error'>('idle')
     const [localCheckStatus, setLocalCheckStatus] = useState<'idle' | 'checking' | 'connected' | 'error'>('idle')
     const [mounted, setMounted] = useState(false)
-    const [localFiles, setLocalFiles] = useState<{ name: string, url: string }[]>([])
+    const [fileItems, setFileItems] = useState<{ name: string, type: string, path: string, url: string }[]>([])
+    const [currentPath, setCurrentPath] = useState<string>('')
     const [exploring, setExploring] = useState(false)
 
     const isModified = !!(originalConfig && JSON.stringify(config) !== JSON.stringify(originalConfig))
@@ -155,16 +156,32 @@ export default function DatabaseSettingsPage() {
         }
     }
 
-    const fetchLocalFiles = async () => {
+    const fetchLocalFiles = async (path?: string) => {
         setExploring(true)
         try {
-            const res = await apiFetch(`/config/explore-local`)
+            const query = path ? `?path=${encodeURIComponent(path)}` : ''
+            const res = await apiFetch(`/config/explore-local${query}`)
             if (res.ok) {
                 const data = await res.json()
-                setLocalFiles(data)
+                if (Array.isArray(data)) {
+                    // Fallback for old backend
+                    const items = data.map((f: any) => ({
+                        name: f.name,
+                        type: 'file',
+                        path: f.name, // Path not available in old version
+                        url: f.url
+                    }))
+                    setFileItems(items)
+                    setCurrentPath('')
+                } else {
+                    // New backend structure
+                    setFileItems(data.items || [])
+                    setCurrentPath(data.currentPath || '')
+                }
             }
         } catch (err) {
             console.error(err)
+            toast.error('Error al explorar archivos')
         } finally {
             setExploring(false)
         }
@@ -213,6 +230,22 @@ export default function DatabaseSettingsPage() {
             toast.error('Error de red al intentar traer datos')
         } finally {
             setPulling(false)
+        }
+    }
+
+    const openInExplorer = async () => {
+        try {
+            const res = await apiFetch(`/config/open-explorer`, {
+                method: 'POST',
+                body: JSON.stringify({ path: currentPath })
+            })
+            if (res.ok) {
+                toast.success('Abriendo en Windows Explorer...')
+            } else {
+                toast.error('Error al abrir explorer')
+            }
+        } catch (err) {
+            console.error(err)
         }
     }
 
@@ -305,7 +338,7 @@ export default function DatabaseSettingsPage() {
                                         />
                                         <Dialog>
                                             <DialogTrigger asChild>
-                                                <Button variant="outline" size="icon" onClick={fetchLocalFiles} title="Explorar Archivos">
+                                                <Button variant="outline" size="icon" onClick={() => fetchLocalFiles()} title="Explorar Archivos">
                                                     <FolderOpen className="h-4 w-4" />
                                                 </Button>
                                             </DialogTrigger>
@@ -313,33 +346,48 @@ export default function DatabaseSettingsPage() {
                                                 <DialogHeader>
                                                     <DialogTitle>Explorar Bases de Datos Locales</DialogTitle>
                                                     <DialogDescription>
-                                                        Selecciona un archivo de base de datos de tu directorio de prisma.
+                                                        Selecciona un archivo de base de datos de tu directorio.
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <div className="space-y-2 py-4">
-                                                    {exploring ? (
-                                                        <div className="flex justify-center py-4"><Loader2 className="animate-spin" /></div>
-                                                    ) : localFiles.length > 0 ? (
-                                                        localFiles.map(file => (
-                                                            <Button
-                                                                key={file.name}
-                                                                variant="ghost"
-                                                                className="w-full justify-start gap-3 h-12"
-                                                                onClick={() => {
-                                                                    setConfig({ ...config, localDbUrl: file.url })
-                                                                    toast.success('Seleccionado: ' + file.name)
-                                                                }}
-                                                            >
-                                                                <FileCode className="h-5 w-5 text-blue-500" />
-                                                                <div className="text-left">
-                                                                    <p className="font-medium">{file.name}</p>
-                                                                    <p className="text-xs text-muted-foreground">{file.url}</p>
-                                                                </div>
-                                                            </Button>
-                                                        ))
-                                                    ) : (
-                                                        <p className="text-center text-muted-foreground py-4">No se encontraron archivos.</p>
-                                                    )}
+                                                    <div className="flex gap-2">
+                                                        <div className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded flex-1 break-all">
+                                                            {currentPath || 'Root'}
+                                                        </div>
+                                                        <Button size="icon" variant="outline" onClick={openInExplorer} title="Abrir en Windows">
+                                                            <FolderOpen className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                    <div className="max-h-[300px] overflow-y-auto space-y-1">
+                                                        {exploring ? (
+                                                            <div className="flex justify-center py-4"><Loader2 className="animate-spin" /></div>
+                                                        ) : fileItems.length > 0 ? (
+                                                            fileItems.map((item, i) => (
+                                                                <Button
+                                                                    key={i}
+                                                                    variant={item.type === 'directory' ? "outline" : "ghost"}
+                                                                    className={`w-full justify-start gap-3 h-10 ${item.type === 'directory' ? 'border-dashed' : ''}`}
+                                                                    onClick={() => {
+                                                                        if (item.type === 'directory') {
+                                                                            fetchLocalFiles(item.path)
+                                                                        } else {
+                                                                            setConfig({ ...config, localDbUrl: item.url })
+                                                                            toast.success('Seleccionado: ' + item.name)
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {item.type === 'directory' ? (
+                                                                        <FolderOpen className="h-4 w-4 text-amber-500" />
+                                                                    ) : (
+                                                                        <FileCode className="h-4 w-4 text-blue-500" />
+                                                                    )}
+                                                                    <span className="truncate">{item.name}</span>
+                                                                </Button>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-center text-muted-foreground py-4">No se encontraron archivos .db aquí.</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </DialogContent>
                                         </Dialog>

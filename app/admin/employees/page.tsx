@@ -126,9 +126,17 @@ export default function EmployeesPage() {
             });
 
             if (res.ok) {
+                const savedEmployee = await res.json();
+                // Update local state instead of refetching
+                if (isEditing) {
+                    setEmployees(prev => prev.map(emp =>
+                        emp.id === editingEmpId ? { ...emp, ...savedEmployee } : emp
+                    ));
+                } else {
+                    setEmployees(prev => [...prev, savedEmployee]);
+                }
                 showToast(isEditing ? 'Employee updated successfully' : 'Employee created successfully');
                 setShowModal(false);
-                fetchEmployees();
             } else {
                 const d = await res.json();
                 showToast(d.error || 'Failed to save employee');
@@ -146,8 +154,9 @@ export default function EmployeesPage() {
                 });
 
                 if (res.ok) {
+                    // Update local state instead of refetching
+                    setEmployees(prev => prev.filter(emp => emp.id !== id));
                     showToast('Employee deleted successfully');
-                    fetchEmployees();
                 } else {
                     const d = await res.json();
                     showToast(d.error || 'Failed to delete employee');

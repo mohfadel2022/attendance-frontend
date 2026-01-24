@@ -65,7 +65,7 @@ export function AppSidebar() {
   return (
     <Sidebar side={isRTL ? "right" : "left"}>
       <SidebarHeader>
-        <Image src="/logo.svg" alt="Logo" width={60} height={60} />
+        <Image src="/logo.svg" alt="Logo" width={56} height={56} priority className="object-contain rounded-full bg-background dark:bg-foreground" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

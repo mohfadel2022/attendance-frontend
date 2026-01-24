@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -52,15 +52,62 @@ export function DataTable<T>({
   progressPending = false,
 }: DataTableProps<T>) {
   const [globalFilter, setGlobalFilter] = useState("");
+  const { t, isRTL } = useI18n();
+
+  // Generate a unique key for this table based on title
+  const storageKey = `datatable_${title.replace(/\s+/g, '_').toLowerCase()}`;
+
+  // Load pagination state from localStorage
+  // We use defaults initially to match server-side rendering and avoid hydration mismatch
   const [pageSize, setPageSize] = useState(10);
   const [pagination, setPagination] = useState({
-  pageIndex: 0,
-  pageSize,
-});
-  const { t, isRTL } = useI18n();
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  // Track if we have loaded from storage to prevent overwriting with defaults
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Effect to load saved state on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSize = localStorage.getItem(`${storageKey}_pageSize`);
+      const savedIndex = localStorage.getItem(`${storageKey}_pageIndex`);
+
+      if (savedSize || savedIndex) {
+        const newSize = savedSize ? Number(savedSize) : 10;
+        const newIndex = savedIndex ? Number(savedIndex) : 0;
+
+        setPageSize(newSize);
+        setPagination({
+          pageIndex: newIndex,
+          pageSize: newSize
+        });
+      }
+      setIsLoaded(true);
+    }
+  }, [storageKey]);
+
 
   const memoColumns = useMemo(() => columns, [columns]);
   const memoData = useMemo(() => data, [data]);
+
+
+  // Save pagination state to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isLoaded) {
+      localStorage.setItem(`${storageKey}_pageIndex`, String(pagination.pageIndex));
+      localStorage.setItem(`${storageKey}_pageSize`, String(pagination.pageSize));
+    }
+  }, [pagination, storageKey, isLoaded]);
+
+  // Adjust page index if current page is out of bounds after data update
+  useEffect(() => {
+    const maxPageIndex = Math.max(0, Math.ceil(data.length / pagination.pageSize) - 1);
+    if (pagination.pageIndex > maxPageIndex) {
+      setPagination(prev => ({ ...prev, pageIndex: maxPageIndex }));
+    }
+  }, [data.length, pagination.pageSize]);
 
   const table = useReactTable({
     data: memoData,
@@ -219,7 +266,7 @@ export function DataTable<T>({
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            { isRTL ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+            {isRTL ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
           </Button>
           <Button
             size="sm"
@@ -227,7 +274,7 @@ export function DataTable<T>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            { isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </Button>
           <Button
             size="sm"
@@ -235,7 +282,7 @@ export function DataTable<T>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            { isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </Button>
           <Button
             size="sm"
@@ -243,7 +290,7 @@ export function DataTable<T>({
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            { isRTL ? <ChevronsLeft className="w-4 h-4" /> : <ChevronsRight className="w-4 h-4" /> }
+            {isRTL ? <ChevronsLeft className="w-4 h-4" /> : <ChevronsRight className="w-4 h-4" />}
           </Button>
         </div>
         <span className="text-sm">
@@ -251,14 +298,14 @@ export function DataTable<T>({
         </span>
 
         <div className="flex items-center gap-2">
-          
-          {t('show')} 
+
+          {t('show')}
           <select
             value={pageSize}
             onChange={e => {
               const size = Number(e.target.value);
               setPageSize(size);
-              table.setPageSize(size);
+              setPagination(prev => ({ ...prev, pageSize: size }));
             }}
             className="border rounded px-2 py-1 text-sm"
           >

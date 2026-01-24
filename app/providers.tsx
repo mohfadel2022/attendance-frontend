@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { I18nProvider, useI18n } from './i18n'
 import { ThemeProvider, useTheme } from 'next-themes'
 import { apiFetch } from '@/lib/api'
+import { SessionManager } from '@/components/session-manager'
 
 const SettingsSync = () => {
   const { lang, setLang } = useI18n()
@@ -41,6 +42,7 @@ export const AppProvider = ({ children, initialLang }: { children: React.ReactNo
     <I18nProvider initialLang={initialLang}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <SettingsSync />
+        <SessionManager />
         <main className="flex-1 p-4">
           {children}
         </main>

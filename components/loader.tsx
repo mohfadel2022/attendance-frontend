@@ -12,11 +12,8 @@ export const LogoLoader = ({ size = 80, text }: LogoLoaderProps) => {
         <img
           src="/logo.svg"
           alt="Loading"
-          className="h-16 w-16 animate-spin bg-gray-600/5 rounded-full"
+          className="h-16 w-16 animate-spin bg-gray-600/5 dark:bg-foreground rounded-full"
         />
-        <p className="text-sm text-muted-foreground">
-          Cargando aplicación…
-        </p>
       </div>
       
     </div>

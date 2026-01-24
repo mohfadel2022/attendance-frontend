@@ -153,7 +153,17 @@ const translations = {
     application: 'Aplicación',
     system: 'Sistema',
     loading: 'Cargando...',
-    
+    ar: 'Árabe',
+    es: 'Español',
+    hours: 'H',
+    minutes: 'm',
+    today_checkouts: 'Salidas de hoy',
+    currently_active: 'Actualmente Activos',
+    this_week: 'Esta Semana',
+    today_total: 'Total de Hoy',
+    recent_activity: 'Actividad Reciente',
+    type: 'Tipo',
+
   },
   ar: {
     dashboard: 'لوحة التحكم',
@@ -295,7 +305,16 @@ const translations = {
     application: 'التطبيق',
     system: 'النظام',
     loading: 'جاري التحميل...',
-    
+    ar: 'العربية',
+    es: 'الإسبانية',
+    hours: 'س',
+    minutes: 'د',
+    today_checkouts: 'مغادرات اليوم',
+    currently_active: 'النشطون حالياً',
+    this_week: 'هذا الأسبوع',
+    today_total: 'إجمالي اليوم',
+    recent_activity: 'النشاط الأخير',
+    type: 'النوع'
   }
 }
 

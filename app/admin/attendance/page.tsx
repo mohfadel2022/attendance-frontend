@@ -7,7 +7,7 @@ import AttendanceEditModal from "@/components/modals/attendance-edit-modal";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
 
 import { Attendance } from "@/lib/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
@@ -16,6 +16,7 @@ export default function AttendancePage() {
 
     const [mounted, setMounted] = useState(false)
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [attendance, setAttendance] = useState<Attendance[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -84,9 +85,13 @@ export default function AttendancePage() {
             });
 
             if (res.ok) {
+                const updatedRecord = await res.json();
+                // Update local state instead of refetching
+                setAttendance(prev => prev.map(a =>
+                    a.id === editingId ? { ...a, ...updatedRecord } : a
+                ));
                 showToast('Attendance updated successfully');
                 setShowAttendanceModal(false);
-                fetchAttendance();
             } else {
                 showToast('Failed to update attendance');
             }
@@ -103,8 +108,9 @@ export default function AttendancePage() {
                 });
 
                 if (res.ok) {
+                    // Update local state instead of refetching
+                    setAttendance(prev => prev.filter(a => a.id !== id));
                     showToast('Attendance deleted successfully');
-                    fetchAttendance();
                 } else {
                     const d = await res.json();
                     showToast(d.error || 'Failed to delete attendance');
@@ -135,11 +141,38 @@ export default function AttendancePage() {
 
     const columns = useMemo(() => AttendanceColumns(t, locale, handleEditAttendance, handleDeleteAttendance), [t]);
 
+    // Filter attendance based on URL parameters
+    const filteredAttendance = useMemo(() => {
+        const typeParam = searchParams.get('type')
+        const dateParam = searchParams.get('date')
+
+        let filtered = attendance
+
+        if (typeParam) {
+            filtered = filtered.filter(a => a.type === typeParam)
+        }
+
+        if (dateParam) {
+            filtered = filtered.filter(a => {
+                const recordDate = new Date(a.timestamp).toISOString().split('T')[0]
+                return recordDate === dateParam
+            })
+        }
+
+        const startDateParam = searchParams.get('startDate')
+        if (startDateParam) {
+            const start = new Date(startDateParam);
+            filtered = filtered.filter(a => new Date(a.timestamp) >= start)
+        }
+
+        return filtered
+    }, [attendance, searchParams])
+
     return (
         <div className="flex flex-col gap-4">
             <h2 className="text-2xl font-bold">{t('attendance')}</h2>
 
-            <DataTable columns={columns} data={attendance} progressPending={loading} />
+            <DataTable title="Attendance" columns={columns} data={filteredAttendance} progressPending={loading} />
 
             {/* Attendance Edit Modal */}
             <AttendanceEditModal

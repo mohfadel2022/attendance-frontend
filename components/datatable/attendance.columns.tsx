@@ -11,7 +11,11 @@ export const AttendanceColumns = (
     onDelete: (rowId: number) => void
 ) => [
         { header: t("user"), accessorKey: "user.name" },
-        { header: t("type"), accessorKey: "type" },
+        { header: t("type"), accessorKey: "type",
+            cell: ({row}:{row: {original: Attendance}}) => <span className={row.original.type === "CHECK_IN" ? "text-green-500" : "text-red-500"}>
+                {row.original.type === "CHECK_IN" ? t("checkin").toLocaleUpperCase() : t("checkout").toLocaleUpperCase()}
+            </span>
+         },
         { header: t("date_time"), accessorKey: "timestamp", 
             cell: ({row}:{row: {original: Attendance}}) => formatDate(row.original.timestamp, { locale, withTime: true }) },
         {

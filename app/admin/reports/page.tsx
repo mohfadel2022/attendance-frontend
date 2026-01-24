@@ -2,7 +2,8 @@
 
 import { useI18n } from "@/app/i18n";
 import UserLogModal from "@/components/modals/user-log-modal";
-import { useEffect, useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAttendance } from "@/hooks/useAttendance";
 import { getDailyRecords } from "@/utils/attendance.utils";
 import { ReportsColumns } from "@/components/datatable/reports.columns";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 
 const ReportsPage = () => {
   const { t } = useI18n();
+  const searchParams = useSearchParams()
 
   const { attendance, refetch, loading } = useAttendance();
 
@@ -24,11 +26,18 @@ const ReportsPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const dailyRecords = useMemo(
-    () => getDailyRecords(attendance),
-    [attendance]
+    () => getDailyRecords(attendance, t),
+    [attendance, t]
   );
 
-  const filteredItems = dailyRecords.filter(
+  // Filter by URL date parameter
+  const dateParam = searchParams.get('date')
+  const dateFilteredRecords = useMemo(() => {
+    if (!dateParam) return dailyRecords
+    return dailyRecords.filter(record => record.date === dateParam)
+  }, [dailyRecords, dateParam])
+
+  const filteredItems = dateFilteredRecords.filter(
     (item) =>
       item.user.name.toLowerCase().includes(filterText.toLowerCase()) ||
       item.date.toLowerCase().includes(filterText.toLowerCase())
@@ -160,7 +169,7 @@ const ReportsPage = () => {
         </div>
       </div>
 
-      <DataTable columns={columns} data={filteredItems} title={t("attendance")} progressPending={loading} />
+      <DataTable columns={columns} data={filteredItems} title={t("reports")} progressPending={loading} />
 
       {selectedUser && (
         <UserLogModal
